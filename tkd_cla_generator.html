@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKD CLA · Generador de Clases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a;
+  --bg-2:#141414;
+  --bg-3:#1c1c1c;
+  --ink:#f2f2f2;
+  --ink-dim:#8a8a8a;
+  --accent:#ff2d2d;
+  --accent-2:#ffcc00;
+  --accent-3:#00d4aa;
+  --border:#2a2a2a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Manrope',sans-serif;
+  min-height:100vh;
+  padding:20px;
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(255,45,45,.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 100%, rgba(255,204,0,.05) 0%, transparent 50%);
+}
+.wrap{max-width:1100px;margin:0 auto}
+
+/* Header */
+.head{
+  border:1px solid var(--border);
+  background:var(--bg-2);
+  padding:32px 28px;
+  margin-bottom:24px;
+  position:relative;
+  overflow:hidden;
+}
+.head::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;
+  width:6px;height:100%;
+  background:var(--accent);
+}
+.head h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(36px,6vw,64px);
+  letter-spacing:.02em;
+  line-height:.95;
+}
+.head h1 span{color:var(--accent)}
+.head p{
+  color:var(--ink-dim);
+  margin-top:8px;
+  font-size:14px;
+  letter-spacing:.05em;
+}
+.head .tag{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  color:var(--accent-2);
+  background:rgba(255,204,0,.08);
+  border:1px solid rgba(255,204,0,.3);
+  padding:4px 10px;
+  margin-top:14px;
+  letter-spacing:.15em;
+}
+
+/* Selector panel */
+.selector{
+  background:var(--bg-2);
+  border:1px solid var(--border);
+  padding:24px;
+  margin-bottom:24px;
+}
+.selector h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;
+  letter-spacing:.05em;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.selector h2::before{
+  content:"01";
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--accent);
+  background:rgba(255,45,45,.1);
+  padding:3px 8px;
+  border:1px solid var(--accent);
+}
+.grid-sel{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+}
+.field label{
+  display:block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  letter-spacing:.15em;
+  color:var(--ink-dim);
+  margin-bottom:6px;
+  text-transform:uppercase;
+}
+.field select{
+  width:100%;
+  background:var(--bg-3);
+  border:1px solid var(--border);
+  color:var(--ink);
+  padding:12px 14px;
+  font-family:'Manrope',sans-serif;
+  font-size:14px;
+  cursor:pointer;
+  transition:border-color .2s;
+}
+.field select:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+.btn-gen{
+  width:100%;
+  margin-top:20px;
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  padding:18px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;
+  letter-spacing:.1em;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.btn-gen:hover{
+  background:#ff4545;
+  letter-spacing:.18em;
+}
+.btn-gen:active{transform:scale(.98)}
+
+/* Output panel */
+.output{
+  border:1px solid var(--border);
+  background:var(--bg-2);
+  display:none;
+}
+.output.show{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.output-head{
+  background:var(--bg-3);
+  padding:20px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.output-head h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:32px;
+  letter-spacing:.03em;
+}
+.output-head .meta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.chip{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  padding:5px 10px;
+  border:1px solid var(--border);
+  background:var(--bg);
+  letter-spacing:.1em;
+}
+.chip.accent{
+  border-color:var(--accent);
+  color:var(--accent);
+  background:rgba(255,45,45,.08);
+}
+.chip.yellow{
+  border-color:var(--accent-2);
+  color:var(--accent-2);
+  background:rgba(255,204,0,.08);
+}
+.chip.green{
+  border-color:var(--accent-3);
+  color:var(--accent-3);
+  background:rgba(0,212,170,.08);
+}
+
+/* Sections */
+.section{
+  padding:24px;
+  border-bottom:1px solid var(--border);
+}
+.section:last-child{border-bottom:none}
+.section-head{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  margin-bottom:16px;
+}
+.section-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:.15em;
+}
+.section-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px;
+  letter-spacing:.05em;
+}
+.section-time{
+  margin-left:auto;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--ink-dim);
+  background:var(--bg-3);
+  padding:4px 10px;
+  border:1px solid var(--border);
+}
+
+.drill{
+  background:var(--bg-3);
+  border-left:3px solid var(--accent);
+  padding:18px 20px;
+  margin-bottom:12px;
+}
+.drill-name{
+  font-weight:800;
+  font-size:16px;
+  margin-bottom:8px;
+  letter-spacing:.01em;
+}
+
+/* Cómo se ejecuta - bloque destacado */
+.drill-section{
+  margin-bottom:12px;
+}
+.drill-section-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  letter-spacing:.15em;
+  color:var(--ink-dim);
+  margin-bottom:4px;
+  text-transform:uppercase;
+}
+.drill-setup{
+  color:var(--ink);
+  font-size:13px;
+  line-height:1.6;
+}
+.drill-howto{
+  color:var(--ink);
+  font-size:13px;
+  line-height:1.6;
+}
+
+.drill-constraint{
+  font-size:12.5px;
+  line-height:1.6;
+  padding:12px 14px;
+  background:rgba(255,204,0,.06);
+  border:1px solid rgba(255,204,0,.25);
+  margin-bottom:10px;
+  color:var(--ink);
+}
+.drill-constraint .label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  color:var(--accent-2);
+  font-weight:700;
+  letter-spacing:.15em;
+  display:block;
+  margin-bottom:6px;
+}
+.drill-constraint .how{
+  font-size:11.5px;
+  color:var(--ink-dim);
+  margin-top:6px;
+  display:block;
+  font-style:italic;
+}
+
+.drill-material{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  color:var(--accent-3);
+  letter-spacing:.08em;
+  margin-top:8px;
+}
+.drill-material::before{
+  content:"MATERIAL · ";
+  font-weight:700;
+}
+
+/* Estaciones grid */
+.stations{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:14px;
+}
+.station{
+  background:var(--bg-3);
+  border:1px solid var(--border);
+  border-top:3px solid var(--accent);
+  padding:18px;
+}
+.station-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  color:var(--accent);
+  letter-spacing:.2em;
+  margin-bottom:8px;
+}
+
+/* Material summary */
+.material-box{
+  background:rgba(0,212,170,.05);
+  border:1px solid rgba(0,212,170,.3);
+  padding:16px;
+  margin-top:14px;
+}
+.material-box h4{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent-3);
+  letter-spacing:.15em;
+  margin-bottom:10px;
+}
+.material-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.mat-item{
+  background:var(--bg);
+  border:1px solid rgba(0,212,170,.3);
+  padding:5px 10px;
+  font-size:12px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* Notes */
+.notes{
+  background:rgba(255,45,45,.04);
+  border:1px solid rgba(255,45,45,.2);
+  padding:18px;
+  margin-top:14px;
+}
+.notes h4{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:.15em;
+  margin-bottom:10px;
+}
+.notes p{
+  font-size:13px;
+  line-height:1.6;
+  color:var(--ink);
+}
+
+/* Action buttons */
+.actions{
+  padding:20px 24px;
+  background:var(--bg-3);
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.btn-action{
+  background:var(--bg);
+  border:1px solid var(--border);
+  color:var(--ink);
+  padding:10px 18px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:.15em;
+  cursor:pointer;
+  transition:all .2s;
+}
+.btn-action:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+/* Footer */
+.foot{
+  margin-top:30px;
+  padding:20px;
+  text-align:center;
+  color:var(--ink-dim);
+  font-size:11px;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:.1em;
+}
+
+/* Print */
+@media print{
+  body{background:#fff;color:#000}
+  .selector,.actions{display:none}
+  .output{border:none}
+  .drill{border-left-color:#000;background:#f5f5f5}
+}
+
+/* Responsive */
+@media (max-width:640px){
+  body{padding:12px}
+  .head{padding:24px 18px}
+  .section{padding:18px}
+  .stations{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <h1>TKD <span>·</span> CLA<br>GENERADOR</h1>
+    <p>Sistema de diseño de clases por método Constraints-Led Approach</p>
+    <span class="tag">v2.0 · TAEKWONDO</span>
+  </header>
+
+  <section class="selector">
+    <h2>CONFIGURA TU CLASE</h2>
+    <div class="grid-sel">
+      <div class="field">
+        <label>Grupo</label>
+        <select id="grupo">
+          <option value="pequenos">Pequeños (3-10 años · 8 niños)</option>
+          <option value="grandes">Grandes (11-18 años · 5 niños)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Día / Sesión</label>
+        <select id="dia">
+          <option value="lunes">Lunes</option>
+          <option value="martes">Martes</option>
+          <option value="miercoles">Miércoles</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Foco del día</label>
+        <select id="foco">
+          <option value="footwork">Footwork y desplazamiento</option>
+          <option value="pateo">Técnica de pateo</option>
+          <option value="combate">Combate-decisión (sin protección)</option>
+          <option value="proteccion">Combate con protección</option>
+          <option value="acondicionamiento">Acondicionamiento</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Intensidad</label>
+        <select id="intensidad">
+          <option value="baja">Baja</option>
+          <option value="media" selected>Media</option>
+          <option value="alta">Alta</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-gen" onclick="generar()">⚡ GENERAR CLASE</button>
+  </section>
+
+  <div id="output" class="output">
+    <div class="output-head">
+      <h2 id="out-titulo"></h2>
+      <div class="meta" id="out-meta"></div>
+    </div>
+    <div id="out-body"></div>
+    <div class="actions">
+      <button class="btn-action" onclick="window.print()">📄 IMPRIMIR</button>
+      <button class="btn-action" onclick="generar()">🎲 OTRA VARIACIÓN</button>
+      <button class="btn-action" onclick="guardarClase()">💾 GUARDAR</button>
+    </div>
+  </div>
+
+  <footer class="foot">
+    BANCO · 5 focos × 6-8 drills × 3-4 constraints por drill = variedad infinita<br>
+    Diseñado para inventario: 4 dummies · 3 palchas · 2 manoplas · 4 popotes · 12 aros · 12 conos · 1 escalera
+  </footer>
+</div>
+
+<script>
+// ============================================
+// BANCO DE DRILLS · CLA TAEKWONDO v2.0
+// Cada drill ahora tiene:
+// - setup: cómo preparar el ejercicio
+// - howto: cómo se ejecuta paso a paso
+// - constraints: array de {regla, como} donde "como" explica el sentido pedagógico
+// ============================================
+
+const ACTIVACIONES = {
+  footwork: [
+    {
+      nombre: "Las islas con monstruo",
+      setup: "Distribuye 8-12 aros en el piso separados al menos 1m entre sí, ocupando toda el área disponible.",
+      howto: "Los niños se mueven libremente entre los aros sin tocarlos. Cuando gritas '¡monstruo!', cada niño debe saltar dentro de un aro libre. Si dos niños llegan al mismo aro, uno queda 'fuera' y debe sentarse 30 seg.",
+      constraints: [
+        { regla: "Progresión de aterrizaje: dos pies → un pie → caer en guardia → solo aterrizaje lateral", como: "Cambia la regla cada 2 minutos para que el cuerpo se adapte a distintas demandas de equilibrio." },
+        { regla: "Reduce 2 aros cada 30 segundos", como: "Aumenta la presión espacial y la competencia, forzando decisiones más rápidas." },
+        { regla: "Solo se vale entrar a aros del color que digas (rojo, azul, etc.)", como: "Suma componente perceptual visual además del motor." }
+      ],
+      material: ["8-12 aros"]
+    },
+    {
+      nombre: "El espejo móvil",
+      setup: "Empareja a los niños. Uno es 'líder', el otro es 'espejo'. Se colocan frente a frente a 2m de distancia.",
+      howto: "El líder se mueve libre por el espacio (adelante, atrás, lateral, diagonal). El espejo debe imitar exactamente el movimiento del líder manteniendo siempre la distancia fija. Cambian roles cada 1 min.",
+      constraints: [
+        { regla: "Solo desplazamiento lateral (izquierda-derecha)", como: "Aísla el patrón de footwork lateral típico del TKD competitivo." },
+        { regla: "Solo adelante-atrás, distancia constante", como: "Trabaja control de distancia, base fundamental del manejo del combate." },
+        { regla: "Movimiento libre pero deben mantener exactamente 2m entre ellos", como: "Obliga a calibrar la distancia en tiempo real, simulando lectura de oponente." }
+      ],
+      material: ["ninguno"]
+    },
+    {
+      nombre: "Stop & Go con conos",
+      setup: "Marca un cuadrado de 4x4m con 6 conos. Todos los niños se ubican dentro del cuadrado en posición de guardia.",
+      howto: "Cuando suena la música (o tus palmas), todos se desplazan dentro del cuadrado en guardia, sin chocarse. Cuando la música para, todos se quedan congelados en posición de combate. Repite por 10 ciclos de movimiento-pausa.",
+      constraints: [
+        { regla: "Al stop, gritas una técnica (chagi, makki) y la ejecutan inmediatamente", como: "Conecta footwork con técnica, evitando que sean dos compartimentos separados." },
+        { regla: "Al stop, deben tocar el cono más cercano con la pierna trasera", como: "Trabaja conciencia espacial y ejecución bajo descontrol postural." },
+        { regla: "El cuadrado se reduce cada 1 minuto (acerca conos)", como: "Aumenta la densidad de oponentes simulando presión de torneo." }
+      ],
+      material: ["6 conos"]
+    },
+    {
+      nombre: "Reacción de mano",
+      setup: "Niños en semicírculo frente a ti, en posición de guardia, a 3m de distancia.",
+      howto: "Apuntas con la mano hacia una dirección (adelante, atrás, izquierda, derecha, arriba, abajo). Todos deben desplazarse en esa dirección manteniendo guardia. Hazlo rápido, encadenando direcciones.",
+      constraints: [
+        { regla: "Encadenas 2-3 señales seguidas sin pausa", como: "Trabaja capacidad de reacción y memoria motora bajo presión." },
+        { regla: "Si apuntas arriba = saltar; abajo = sentadilla rápida en guardia", como: "Añade plano vertical al footwork, replicando esquivas reales." },
+        { regla: "Varías la velocidad de las señales (lento-rápido-stop)", como: "Rompe el ritmo predecible, forzando atención sostenida." }
+      ],
+      material: ["ninguno"]
+    },
+    {
+      nombre: "Túnel de aros saltarines",
+      setup: "Coloca 6 aros en línea recta, separados 60cm entre sí. Los niños hacen fila al inicio del túnel.",
+      howto: "Uno por uno, los niños pasan saltando dentro de cada aro. Al salir del último aro, ejecutan una patada al aire o al dummy. Rotan continuamente. Cada vuelta cambias el patrón de salto.",
+      constraints: [
+        { regla: "Salto con un pie en cada aro alternando piernas", como: "Trabaja equilibrio unilateral, esencial para mantener la base al patear." },
+        { regla: "Saltos laterales (de costado) en cada aro", como: "Desarrolla el desplazamiento lateral usado en evasiones de contraataque." },
+        { regla: "Saltos con giro 180° en cada aro", como: "Coordina rotación + equilibrio + reorientación espacial." }
+      ],
+      material: ["6 aros", "1 dummy opcional"]
+    },
+    {
+      nombre: "Persecución con sombras",
+      setup: "Empareja a los niños. Uno es 'sombra' y se coloca 1m detrás del 'líder'.",
+      howto: "El líder se desplaza por el espacio sin patrón fijo (camina, corre, gira, cambia de dirección). La sombra debe seguirlo manteniendo siempre 1m de distancia exacta. Si la pierde, suma una 'falta'. Cambian roles a los 45 seg.",
+      constraints: [
+        { regla: "Toda la persecución debe hacerse en posición de guardia", como: "Forza al cuerpo a desplazarse técnicamente, no como en juego libre." },
+        { regla: "El líder debe incluir 2 patadas durante su recorrido", como: "Introduce variabilidad técnica que la sombra debe leer y replicar." },
+        { regla: "La sombra cuenta cuántas veces lo pierde; gana quien tenga menos faltas", como: "Añade componente competitivo que aumenta la concentración." }
+      ],
+      material: ["ninguno"]
+    }
+  ],
+  pateo: [
+    {
+      nombre: "Caza-popotes",
+      setup: "Algunos niños (los 'estacas') sostienen popotes verticalmente, brazo extendido, a diferentes alturas. Los otros (los 'cazadores') esperan en fila.",
+      howto: "Cada cazador tiene 30 seg para tocar con el pie todos los popotes que pueda, en cualquier orden, alternando entre las distintas estacas. Cuenta los toques. Después rotan: los cazadores pasan a ser estacas.",
+      constraints: [
+        { regla: "El estaca mueve su popote a otra altura cada 3 segundos", como: "Convierte el blanco estático en blanco móvil, similar a un oponente real." },
+        { regla: "Solo se vale tocar con la pierna trasera", como: "Aísla la pierna fuerte y trabaja la patada de retaguardia, dominante en torneos." },
+        { regla: "Solo con el empeine, no con la planta del pie", como: "Refuerza la zona de impacto correcta del dolyo chagi." }
+      ],
+      material: ["4 popotes"]
+    },
+    {
+      nombre: "Globos imaginarios",
+      setup: "Niños separados al menos 2m entre sí, en posición de guardia, espacio libre alrededor.",
+      howto: "Cada niño imagina un globo flotando frente a él a determinada altura (tronco, cara, encima de su cabeza). Debe 'tocar' ese globo con la patada manteniendo equilibrio. Repite 10 patadas, luego cambia de altura.",
+      constraints: [
+        { regla: "Solo con pierna delantera (sin paso previo)", como: "Trabaja la patada rápida sin desplazamiento, clave para intercambios cortos." },
+        { regla: "Mantener el pie arriba 3 segundos después de patear, sin bajarlo", como: "Refuerza control postural y fuerza isométrica de la cadera." },
+        { regla: "Alternar piernas cada patada sin pausa", como: "Trabaja el cambio rápido de base, simulando combinaciones." }
+      ],
+      material: ["ninguno"]
+    },
+    {
+      nombre: "Caminata de patadas",
+      setup: "Los niños hacen fila en un extremo del tatami, cara hacia el otro extremo. Espacio mínimo: 8m de recorrido.",
+      howto: "Caminan en línea recta de extremo a extremo. Cada paso que dan, en lugar de simplemente apoyar el pie, ejecutan una patada controlada (la pierna que avanza patea antes de aterrizar). Llegan al final, regresan caminando normal, y repiten.",
+      constraints: [
+        { regla: "Cada patada a altura distinta (rodilla, cintura, pecho)", como: "Obliga al cuerpo a ajustar la cadera sin instrucción verbal directa." },
+        { regla: "Combinación de 2 técnicas por paso (ej. ap chagi + dolyo chagi)", como: "Introduce combinaciones desde la marcha, sin pensar conscientemente." },
+        { regla: "No bajar el pie tras patear, mantener 2 segundos en el aire antes del siguiente paso", como: "Trabaja equilibrio y fuerza de soporte de la pierna de base." }
+      ],
+      material: ["ninguno"]
+    },
+    {
+      nombre: "Pao escondido",
+      setup: "Tú con una palcha frente al niño, a distancia variable. El niño en guardia.",
+      howto: "El niño cierra los ojos 3 segundos. Tú mueves silenciosamente la palcha a una nueva altura y/o posición. Al gritar '¡abre!', el niño debe patear inmediatamente al pao en donde aparezca. Repite 8-10 veces, luego rota.",
+      constraints: [
+        { regla: "Solo 1 segundo entre abrir los ojos y patear", como: "Trabaja velocidad de procesamiento visual y respuesta motora." },
+        { regla: "Debe identificar la altura del pao sin moverse, y solo después ejecutar", como: "Separa la fase perceptual de la motora, mejorando la lectura." },
+        { regla: "Coach mueve a una posición 'imposible' (muy alta, muy lejos)", como: "Fuerza adaptaciones extremas: rotación de cadera, paso previo, etc." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Estaciones de altura",
+      setup: "Coloca 3 dummies en línea, separados 2m. Pega o sostén un popote en cada dummy a diferente altura: bajo (rodilla), medio (cintura), alto (pecho).",
+      howto: "El niño recorre los 3 dummies en orden, ejecutando una patada en cada uno apuntando exactamente a la altura del popote. Si tira el popote o no llega, repite la estación. Hace 3-5 rondas completas.",
+      constraints: [
+        { regla: "Las 3 patadas deben ser técnicas distintas (ap chagi, dolyo chagi, naeryo chagi, etc.)", como: "Asocia cada altura con la técnica más eficiente para esa zona." },
+        { regla: "Cronometra el recorrido completo; cada vuelta debe ser más rápida sin tirar popotes", como: "Combina precisión con velocidad progresiva." },
+        { regla: "Recorrido en orden inverso (alto-medio-bajo)", como: "Trabaja transiciones inversas, menos automáticas y más exigentes." }
+      ],
+      material: ["3 dummies", "3 popotes"]
+    },
+    {
+      nombre: "Patada con timing",
+      setup: "Pareja: uno con palcha (sostén), otro patea. El sostén tiene la palcha pegada a su pierna o costado, sin mostrarla.",
+      howto: "El sostén levanta la palcha rápidamente a una altura y la baja en menos de 2 segundos. El que patea debe acertar en ese intervalo. Si no lo logra, pierde el turno. Suma puntos por aciertos. Cambian cada 1 min.",
+      constraints: [
+        { regla: "La palcha solo aparece 1 segundo (timing extremo)", como: "Entrena reacción rápida ante apertura corta del oponente." },
+        { regla: "El sostén puede mostrar la palcha en 2 alturas en secuencia rápida (el que patea elige cuál)", como: "Introduce decisión bajo presión, no solo reacción." },
+        { regla: "El sostén puede 'engañar' mostrando sin compromiso; el que patea debe filtrar fintas", como: "Trabaja discriminación entre apertura real y finta." }
+      ],
+      material: ["1 palcha"]
+    }
+  ],
+  combate: [
+    {
+      nombre: "Sparring de hombros",
+      setup: "Empareja niños del mismo tamaño aproximado. Marca un cuadrado de 2x2m con 4 conos. La pareja entra al cuadrado en guardia, frente a frente.",
+      howto: "Sin patadas, sin contacto al cuerpo. Solo deben intentar tocar el hombro del compañero con la mano. Cuando uno toca, suma 1 punto y reinician en el centro. Juegan a 3 puntos. Es esencialmente un juego de distancia y evasión sin riesgo de lastimarse.",
+      constraints: [
+        { regla: "Solo con la mano dominante", como: "Restringe opciones y obliga a buscar ángulos con el cuerpo." },
+        { regla: "Solo con la mano no dominante", como: "Saca al niño de su patrón cómodo, desarrollando lateralidad." },
+        { regla: "Si pierdes contacto visual con el oponente (miras al suelo), pierdes punto", como: "Refuerza la mirada al pecho del oponente, hábito clave en combate." }
+      ],
+      material: ["4 conos"]
+    },
+    {
+      nombre: "1 ataque, 1 defensa",
+      setup: "Pareja con palcha o manopla en el pecho. Roles asignados: A es atacante, B es defensor. 30 segundos por turno.",
+      howto: "A solo puede ejecutar UN ataque (la técnica que elija). B solo puede defender (esquivar, bloquear, o moverse), no contraataca. A insiste hasta que toca o pasan los 30 seg. Después rotan roles.",
+      constraints: [
+        { regla: "A solo amaga (sin contacto), B esquiva", como: "Trabaja lectura de intenciones sin riesgo, ideal para pequeños." },
+        { regla: "B contraataca con UNA técnica específica que tú elijas (ej. solo dolyo de pierna trasera)", como: "Trabaja respuesta condicionada bajo presión." },
+        { regla: "B debe responder en menos de 1 segundo después del ataque de A", como: "Entrena el contraataque inmediato, no el contraataque demorado." }
+      ],
+      material: ["1 palcha", "1 manopla"]
+    },
+    {
+      nombre: "Zona caliente",
+      setup: "Marca un cuadrado pequeño con 4 aros (lados de 2m). La pareja entra dentro del cuadrado con palcha en pecho cada uno.",
+      howto: "Combate suave al pao dentro del cuadrado. Si uno sale (un pie fuera de la línea de aros), pierde un punto y reinician. Juego a 3 puntos perdidos o 1 min de tiempo. Quien menos veces salga, gana.",
+      constraints: [
+        { regla: "El cuadrado se achica cada 1 minuto (mueves aros hacia adentro)", como: "Aumenta la presión espacial progresivamente, simulando entrar en zona de torneo." },
+        { regla: "Solo vale ataque al pao del oponente, no al cuerpo", como: "Mantiene el control de contacto evitando lesiones." },
+        { regla: "Quien sale 3 veces consecutivas pierde el round inmediatamente", como: "Penaliza la huida lineal, refuerza salida lateral." }
+      ],
+      material: ["4 aros"]
+    },
+    {
+      nombre: "Línea de conos",
+      setup: "Coloca dos líneas paralelas de 3 conos cada una, separadas 2m. La pareja se ubica una frente a la otra, una persona por línea.",
+      howto: "Combate al pao, pero ambos solo pueden moverse en línea recta (adelante o atrás cruzando su línea de conos). Sin desplazamiento lateral. Quien hace cruzar al otro su línea hacia atrás, gana 1 punto. Juego a 5 puntos.",
+      constraints: [
+        { regla: "Sin contacto, solo amago de patada que asuste al oponente", como: "Trabaja presión psicológica y manejo de distancia sin riesgo." },
+        { regla: "Si pateas y no llegas al pao (queda corto), pierdes tu turno", como: "Penaliza la patada sin compromiso, refuerza calibración de distancia." },
+        { regla: "Solo se vale patear con pierna delantera", como: "Trabaja la patada rápida de avance, técnica clave en torneo." }
+      ],
+      material: ["6 conos"]
+    },
+    {
+      nombre: "Tag al pao",
+      setup: "Pareja, cada uno con una manopla en una mano (sostienen la manopla con la palma hacia el oponente). En guardia.",
+      howto: "Juego de tag: cada uno debe golpear la manopla del oponente con SU patada, evitando que el otro le pegue a la suya. La manopla actúa como blanco móvil que el dueño mueve para protegerla. Round de 1 min, gana quien acumule más toques.",
+      constraints: [
+        { regla: "La manopla solo puede moverse hacia adelante y a los lados, no atrás (no se puede esconder)", como: "Limita la evasión total y fuerza combate real." },
+        { regla: "Solo se vale patear, no usar la mano libre para bloquear", como: "Aísla el uso de las piernas, esencia del TKD." },
+        { regla: "Si tu manopla recibe 3 toques seguidos sin que tú toques la del otro, pierdes el round", como: "Penaliza el juego pasivo, fomenta ofensiva." }
+      ],
+      material: ["2 manoplas"]
+    },
+    {
+      nombre: "Combate con ángulos",
+      setup: "Marca un círculo grande (4m de diámetro) con 8 conos. La pareja entra en posición de combate.",
+      howto: "Combate al pao, pero está PROHIBIDO atacar de frente. Toda patada debe venir desde un ángulo lateral (saliéndote primero a un lado y luego atacando). Si atacas de frente, no cuenta. Round de 1 min.",
+      constraints: [
+        { regla: "Antes de atacar, debes haber dado al menos 1 paso lateral", como: "Construye el hábito de buscar ángulos en vez de chocarse de frente." },
+        { regla: "Doble punto si atacas desde un ángulo de 90° o más respecto al oponente", como: "Premia la angulación extrema, técnica avanzada de torneo." },
+        { regla: "Si el oponente te sorprende de frente con un ataque, sumas 2 puntos (por dejar el frente abierto)", como: "Penaliza dejarse exponer en línea recta." }
+      ],
+      material: ["8 conos"]
+    }
+  ],
+  proteccion: [
+    {
+      nombre: "Sparring controlado al peto",
+      setup: "Todos con equipo completo (peto, casco, espinilleras, guantes, coderas). Parejas equilibradas por peso/nivel.",
+      howto: "Combate real con contacto controlado al peto. Sin contacto a la cara. Rounds de 1 min con 30 seg de descanso. Tú arbitras y detienes si el contacto es excesivo. Foco en marcar técnica limpia, no en ganar.",
+      constraints: [
+        { regla: "Solo se vale patear con pierna trasera", como: "Limita el repertorio y obliga a buscar otros recursos (desplazamiento, finta)." },
+        { regla: "Mínimo 3 técnicas distintas antes de poder repetir la misma", como: "Fuerza variedad técnica, evita el 'spam' de una patada favorita." },
+        { regla: "Técnica diferente al peto = doble punto", como: "Premia la creatividad técnica sobre la repetición." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Rounds 30 seg con rotación",
+      setup: "Todos con equipo. Forma círculo y empareja a los 2 centrales para combatir. Los demás esperan en círculo.",
+      howto: "Combate de 30 seg. Al pitido, los 2 que estaban combatiendo se quedan fuera y entran 2 nuevos del círculo. Rotación continua durante 6-10 rounds. Cada atleta combate con varios oponentes distintos en una sesión.",
+      constraints: [
+        { regla: "30 seg ON / 30 seg OFF, sin excepción", como: "Trabaja capacidad de recuperación entre intercambios cortos." },
+        { regla: "Cada round con un constraint distinto que anuncias justo antes (ej. 'solo dolyo', 'sin retroceder')", como: "Obliga a adaptarse rápidamente a reglas cambiantes, como en torneo." },
+        { regla: "El último round es libre, sin constraint", como: "Permite integrar lo trabajado en condiciones reales de combate." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Constraint de pierna fijo",
+      setup: "Equipo completo, pareja en el área de combate.",
+      howto: "Combate normal pero cada atleta tiene asignada UNA pierna obligada para atacar. La otra pierna solo se usa para defender (bloquear, esquivar). Round de 1 min, después cambian de pierna asignada.",
+      constraints: [
+        { regla: "Uno solo pierna trasera, el otro solo pierna delantera", como: "Genera asimetría estratégica: uno con fuerza, otro con velocidad." },
+        { regla: "Ambos solo pierna izquierda (o la débil de cada uno)", como: "Fuerza desarrollo de la pierna no dominante." },
+        { regla: "Cambio de constraint cada 30 segundos durante el mismo round", como: "Entrena adaptación táctica rápida bajo presión." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Score primero vale triple",
+      setup: "Equipo completo, pareja al centro.",
+      howto: "Combate normal con scoring modificado: el primer punto del round vale 3 puntos, todos los siguientes valen 1. Round de 1 min. Esto cambia completamente la estrategia: quien marca primero domina el round.",
+      constraints: [
+        { regla: "Si recibes el primer punto, debes ganar por 4+ puntos para llevarte el round", como: "Penaliza fuertemente la apertura pasiva." },
+        { regla: "Pasividad de 10 seg seguidos = punto automático para el otro", como: "Evita el 'esperar y reaccionar' que rompe el ritmo del combate." },
+        { regla: "Si en los primeros 15 seg nadie ha marcado, ambos pierden 1 punto", como: "Fuerza inicio agresivo, simula presión de marcador inicial." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Sparring con desventaja",
+      setup: "Equipo completo, pareja al centro. Marcador empieza desigual.",
+      howto: "Uno arranca con 2 puntos en contra. Tiene que remontar en el round. Cambian roles al siguiente round. Esto entrena la gestión emocional de ir perdiendo, situación real de torneo.",
+      constraints: [
+        { regla: "Round de 1 min con desventaja de 2 puntos", como: "Práctica básica de remontada bajo presión." },
+        { regla: "Round de 90 seg con desventaja de 3 puntos", como: "Aumenta la urgencia, fuerza decisiones más arriesgadas." },
+        { regla: "Si en los primeros 30 seg el que va perdiendo no ataca, pierde 1 punto cada 15 seg adicionales", como: "Penaliza el bloqueo mental, fuerza la acción." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Sin retroceso lineal",
+      setup: "Equipo completo, área de combate marcada.",
+      howto: "Combate normal pero está prohibido retroceder en línea recta (huir hacia atrás). Toda salida debe ser lateral (a 45° o más). Si el árbitro detecta retroceso recto, pena de 1 punto.",
+      constraints: [
+        { regla: "Solo salida lateral 45° o más", como: "Construye el hábito de circular alrededor del oponente, no escapar." },
+        { regla: "Quien retrocede en recto pierde 1 punto y se detiene el round 5 seg", como: "Refuerzo negativo claro y consistente." },
+        { regla: "Máximo 1 paso atrás permitido por cada intercambio (luego obliga lateral)", como: "Permite ajuste mínimo de distancia pero sin huida total." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Combate con apertura forzada",
+      setup: "Equipo completo, pareja al centro.",
+      howto: "Antes de cada ataque, el atacante debe hacer 1 finta (movimiento de hombro, paso falso, o amago de patada) que el árbitro pueda identificar. Si ataca sin finta previa, el punto no cuenta. Round de 1 min.",
+      constraints: [
+        { regla: "1 finta antes del ataque, identificable claramente", como: "Construye el hábito de no atacar 'a ciegas'." },
+        { regla: "2 fintas antes del ataque real", como: "Trabaja secuencias de engaño táctico." },
+        { regla: "La finta debe ser de pierna distinta a la que ataca", como: "Trabaja descoordinación intencional para confundir al oponente." }
+      ],
+      material: ["equipo completo"]
+    }
+  ],
+  acondicionamiento: [
+    {
+      nombre: "Escalera + dummy combo",
+      setup: "Coloca la escalera de agilidad extendida en el piso. Al final de la escalera, a 1m, coloca un dummy.",
+      howto: "Los niños hacen fila. Uno por uno pasa la escalera con footwork TKD a máxima velocidad, y al salir ejecuta una combinación de 3 patadas seguidas al dummy. Regresa caminando al final de la fila. Hace 5 rondas.",
+      constraints: [
+        { regla: "Las 3 patadas finales deben ser técnicas distintas", como: "Trabaja repertorio bajo fatiga, no solo la patada favorita." },
+        { regla: "Cambia el tipo de paso en escalera en cada vuelta (in-in-out-out, lateral, cruzado, etc.)", como: "Aumenta demanda coordinativa progresiva." },
+        { regla: "Tiempo total < 15 segundos por vuelta", como: "Convierte el drill en métrica medible, motivador para los niños." }
+      ],
+      material: ["1 escalera", "1 dummy"]
+    },
+    {
+      nombre: "Circuito 3 estaciones",
+      setup: "Estación 1: dummy para patadas. Estación 2: cuadrado de 4 conos para skipping. Estación 3: espacio libre para burpees. Distribuye a los niños en las 3 estaciones.",
+      howto: "45 seg de trabajo máximo / 15 seg de transición a la siguiente estación. Trabajan 3 vueltas completas (cada niño hace cada estación 3 veces). En el dummy: patadas continuas; en los conos: footwork rápido; en el burpee: explosividad.",
+      constraints: [
+        { regla: "3 vueltas completas sin pausa entre vueltas", como: "Trabaja resistencia anaeróbica láctica, demanda real de combate." },
+        { regla: "La última vuelta el ON dura 60 seg (no 45)", como: "Cierre con sobrecarga, simula final de combate cansado." },
+        { regla: "En cada estación debe haber al menos 1 técnica TKD por vuelta", como: "Mantiene la transferencia al deporte, no acondicionamiento genérico." }
+      ],
+      material: ["1 dummy", "4 conos"]
+    },
+    {
+      nombre: "Sombra explosiva",
+      setup: "Niños distribuidos en el espacio, sin parejas, con espacio libre alrededor de cada uno.",
+      howto: "Cada niño hace shadow sparring (combate imaginario) a máxima intensidad: ataques, defensas, desplazamientos. Por intervalos cortos con descanso medido. Tú marcas inicio y fin de cada intervalo.",
+      constraints: [
+        { regla: "Tabata: 20 seg ON / 10 seg OFF × 8 rondas (4 minutos total)", como: "Trabajo HIIT clásico, demanda alta en poco tiempo." },
+        { regla: "30 seg ON / 30 seg OFF × 6 rondas", como: "Trabajo de capacidad similar a duración real de round." },
+        { regla: "Cada ON con un constraint técnico distinto (solo patadas, solo combinaciones, solo defensa)", como: "Combina acondicionamiento con desarrollo técnico." }
+      ],
+      material: ["ninguno"]
+    },
+    {
+      nombre: "Pao continuo",
+      setup: "Pareja: uno sostiene palcha en movimiento, otro patea. El sostén se desplaza por el espacio, no se queda quieto.",
+      howto: "El que patea debe perseguir la palcha por todo el espacio y patearla continuamente sin parar. El sostén se mueve adelante, atrás, lateral, gira. Round de 1 min sin descanso. Cambian roles. Es brutalmente exigente cardio.",
+      constraints: [
+        { regla: "1 minuto completo sin bajar el ritmo (mínimo 1 patada cada 2 seg)", como: "Trabaja resistencia específica de la cadera." },
+        { regla: "Solo pierna trasera todo el minuto (¡quema!)", como: "Sobrecarga unilateral, simula condiciones de fin de round." },
+        { regla: "Cambio obligado de pierna cada 4 patadas", como: "Trabaja transiciones rápidas bajo fatiga." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Carrera de relevos técnicos",
+      setup: "Divide al grupo en 2 equipos. Cada equipo en una fila al inicio de un recorrido marcado: 6 conos en zig-zag + dummy al final.",
+      howto: "Por turnos, cada miembro del equipo recorre el zig-zag entre conos en guardia, llega al dummy, ejecuta 5 patadas rápidas, y regresa corriendo. Toca al siguiente compañero, que sale. Gana el equipo que termine primero todas sus rondas.",
+      constraints: [
+        { regla: "Cada miembro hace 3 turnos completos", como: "Volumen alto de trabajo bajo presión competitiva." },
+        { regla: "Las 5 patadas finales deben ser técnicas distintas", como: "Suma componente cognitivo bajo fatiga." },
+        { regla: "Si te saltas un cono, debes volver y rehacerlo", como: "Penaliza apurarse a costa de la técnica." }
+      ],
+      material: ["6 conos", "1 dummy"]
+    },
+    {
+      nombre: "Ronda de los 4 rincones",
+      setup: "Marca 4 esquinas con conos o aros, formando un cuadrado de 6x6m. En cada esquina coloca un material distinto: dummy, palcha, manopla, y espacio libre.",
+      howto: "Los niños rotan por las 4 esquinas, 30 seg en cada una, con tarea diferente: esquina 1 patadas al dummy; esquina 2 patadas al pao (compañero); esquina 3 patadas a manopla móvil; esquina 4 shadow sparring. 2 minutos por ronda completa, 3-4 rondas totales.",
+      constraints: [
+        { regla: "30 seg de trabajo / 5 seg de cambio entre esquinas", como: "Densidad alta, transición rápida igual que entre intercambios reales." },
+        { regla: "Cada esquina con un tipo de patada obligatorio distinto", como: "Cubre todo el repertorio técnico en una sesión." },
+        { regla: "Última ronda, todos en la misma esquina compitiendo en intensidad", como: "Cierre lúdico-competitivo, refuerza esfuerzo final." }
+      ],
+      material: ["1 dummy", "1 palcha", "1 manopla", "4 conos"]
+    }
+  ]
+};
+
+const ESTACIONES = {
+  footwork: [
+    {
+      nombre: "Escalera + Dummy",
+      setup: "Escalera de agilidad en el piso, dummy al final a 1m.",
+      howto: "El niño pasa la escalera con footwork TKD a velocidad, llega al dummy y ejecuta una combinación. Regresa al final de la fila. Rotación continua durante los 10 min.",
+      constraints: [
+        { regla: "Cada turno cambia el tipo de paso en escalera (in-in-out-out, lateral, cruzado, hop)", como: "Variabilidad alta de patrones motores." },
+        { regla: "Combo de 2 patadas al final con piernas alternadas", como: "Trabaja cambio de base y transferencia de peso." },
+        { regla: "Sin tocar suelo con las manos durante toda la secuencia", como: "Refuerza equilibrio dinámico." }
+      ],
+      material: ["1 escalera", "1 dummy"]
+    },
+    {
+      nombre: "Slalom cono-palcha",
+      setup: "6 conos en zigzag (separados 1m), al final un compañero con palcha.",
+      howto: "El niño recorre el zigzag en posición de guardia (no caminando normal), y al llegar al final patea la palcha que el compañero sostiene.",
+      constraints: [
+        { regla: "El del pao mueve la altura de la palcha aleatoriamente cuando el niño llega", como: "Combina footwork con reactividad de patada." },
+        { regla: "Pasos solo cruzados entre conos (cross-step)", como: "Trabaja patrón usado en evasión de contraataque." },
+        { regla: "Cronometrado: completar el recorrido en menos de 8 segundos", como: "Suma componente de velocidad medible." }
+      ],
+      material: ["6 conos", "1 palcha"]
+    },
+    {
+      nombre: "Aros como stance",
+      setup: "4 aros en línea recta separados 1m. Al final un dummy a 1m del último aro.",
+      howto: "El niño salta de aro en aro cayendo dentro de cada uno en posición de guardia (pies separados, manos arriba). Al salir del último aro, patea el dummy.",
+      constraints: [
+        { regla: "Alterna la pierna que queda adelantada en cada aro", como: "Trabaja switch stance, técnica clave en torneo." },
+        { regla: "Al salir del último aro, patea el dummy con la pierna que quedó libre", como: "Conecta footwork con ejecución técnica inmediata." },
+        { regla: "Saltos solo laterales (de costado, no de frente)", como: "Refuerza desplazamiento lateral típico de evasión." }
+      ],
+      material: ["4 aros", "1 dummy"]
+    },
+    {
+      nombre: "Línea roja con conos",
+      setup: "Dos líneas paralelas de 3 conos cada una, separadas 2m. Pareja, uno en cada línea, frente a frente.",
+      howto: "Combate de presión: solo pueden moverse adelante o atrás cruzando su línea de conos. Sin contacto, solo amagos. Quien fuerza al otro a retroceder cruzando su línea atrás, gana 1 punto.",
+      constraints: [
+        { regla: "Quien fuerza al otro a cruzar la línea atrás suma punto", como: "Premia el avance constante y la presión." },
+        { regla: "Sin contacto, solo amago de patada", como: "Trabaja presión sin contacto, ideal para pequeños." },
+        { regla: "Distancia entre líneas fija obligatoria, no se puede acercar más", como: "Aísla la variable de avance/retroceso pura." }
+      ],
+      material: ["6 conos"]
+    },
+    {
+      nombre: "Pao reactivo",
+      setup: "Coach con palcha frente al niño a 2m. Niño en guardia.",
+      howto: "El coach sube y baja la palcha impredeciblemente, a diferentes alturas. El estudiante debe patear apenas la palcha aparezca a su altura. Si tarda más de 1 seg en reaccionar, no cuenta.",
+      constraints: [
+        { regla: "Reacción en menos de 1 segundo desde que ve el pao", como: "Trabaja velocidad de procesamiento visual y motora." },
+        { regla: "Solo con pierna trasera todo el turno", como: "Aísla la patada larga, dominante en marcador." },
+        { regla: "Identificar altura sin moverse antes de patear (no avanzar a ciegas)", como: "Separa fase perceptual de motora." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Doble dummy con manopla",
+      setup: "2 dummies separados 3m. Un compañero con manopla en mano libre, entre los dummies.",
+      howto: "El niño patea el primer dummy, se desplaza al segundo, patea la manopla que el compañero le presenta a la altura que decida, luego al segundo dummy, y vuelve.",
+      constraints: [
+        { regla: "Cambio de pierna obligado entre cada blanco", como: "Trabaja transiciones rápidas de base." },
+        { regla: "El de la manopla cambia posición cada turno (más cerca, más lejos, otro ángulo)", como: "Introduce variable impredecible en medio de la secuencia." },
+        { regla: "Combinación de 3 técnicas distintas en toda la secuencia", como: "Fuerza variedad técnica bajo flujo continuo." }
+      ],
+      material: ["2 dummies", "1 manopla"]
+    },
+    {
+      nombre: "Cuadrado mágico",
+      setup: "4 aros formando un cuadrado de 2x2m. Niño en el centro del cuadrado en guardia.",
+      howto: "El coach (o un compañero) grita un número (1, 2, 3 o 4) que corresponde a un aro. El niño debe llegar a ese aro en posición de guardia en el menor número de pasos posible. Repite secuencias de 5-10 números seguidos.",
+      constraints: [
+        { regla: "Solo se puede salir del cuadrado con un paso máximo", como: "Refuerza eficiencia de desplazamiento corto." },
+        { regla: "Al llegar al aro, ejecutar una patada al aire en esa dirección", como: "Conecta footwork con técnica direccional." },
+        { regla: "Secuencias en orden inverso al gritado (ej. gritas 1-2-3, ejecuta 3-2-1)", como: "Suma demanda cognitiva al patrón motor." }
+      ],
+      material: ["4 aros"]
+    },
+    {
+      nombre: "Persecución en el cuadrado",
+      setup: "Cuadrado de 4m con 4 conos. Pareja dentro, uno es 'gato', otro es 'ratón'.",
+      howto: "El gato debe tocar al ratón con la mano. El ratón solo puede esquivar usando desplazamientos en guardia (no corre normal). Si lo toca, suma punto. 30 seg, cambian roles.",
+      constraints: [
+        { regla: "Ambos deben mantener guardia técnica todo el tiempo", como: "Convierte el juego en práctica de footwork constante." },
+        { regla: "El ratón puede 'congelarse' 3 seg para evitar contacto (1 vez por round)", como: "Añade decisión estratégica sobre cuándo usar el recurso." },
+        { regla: "Cuadrado se reduce a 3m después de 15 seg", como: "Aumenta presión espacial progresiva." }
+      ],
+      material: ["4 conos"]
+    }
+  ],
+  pateo: [
+    {
+      nombre: "Pao en movimiento",
+      setup: "Tú con palcha frente al niño, a distancia variable. Niño en guardia.",
+      howto: "Mueves la palcha a diferentes alturas y distancias. El niño debe patear desde donde está, sin dar pasos previos. Si quiere acercarse, debe hacerlo después de identificar el blanco.",
+      constraints: [
+        { regla: "Patear desde donde está sin dar pasos previos", como: "Aísla la patada inmediata sin desplazamiento, técnica fundamental." },
+        { regla: "Solo pierna delantera durante todo el turno", como: "Trabaja la patada corta y rápida." },
+        { regla: "Coach mueve el pao mientras el niño está pateando", como: "Trabaja ajuste en pleno vuelo, demanda perceptual extrema." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Aros como blancos al piso",
+      setup: "4 aros en el piso espaciados 1.5m entre sí.",
+      howto: "El niño patea hacia abajo dentro del aro con golpe controlado de talón (simulando naeryo chagi controlado) o pisada técnica. El pie debe entrar dentro del aro sin pisar los bordes. Repite por todos los aros.",
+      constraints: [
+        { regla: "Solo el pie debe entrar en el aro, no salir por los lados", como: "Trabaja precisión de control de patada descendente." },
+        { regla: "Alternar pierna cada aro", como: "Desarrolla ambas piernas equitativamente." },
+        { regla: "3 patadas seguidas al mismo aro sin bajar el pie", como: "Trabaja resistencia y control isométrico de la pierna de soporte." }
+      ],
+      material: ["4 aros"]
+    },
+    {
+      nombre: "Dummy + popote calibrador",
+      setup: "2 dummies con un popote pegado horizontalmente a una altura específica (con cinta o sostenido por un compañero).",
+      howto: "El niño debe patear el dummy 'rozando' el popote sin moverlo. La altura del popote marca exactamente dónde debe llegar la patada. Si tira el popote, repite. 5 patadas exitosas y rota.",
+      constraints: [
+        { regla: "El popote marca la altura exacta de la patada (no más alto, no más bajo)", como: "Calibración perceptual sin instrucción verbal." },
+        { regla: "Si tira el popote, repite la patada desde cero", como: "Refuerzo inmediato del error técnico." },
+        { regla: "Cambias la altura del popote cada turno", como: "Variabilidad perceptual constante." }
+      ],
+      material: ["2 dummies", "2 popotes"]
+    },
+    {
+      nombre: "Pao escondido",
+      setup: "Tú con palcha, niño frente a ti en guardia con los ojos cerrados.",
+      howto: "El niño cierra los ojos 3 seg. Mueves la palcha a posición nueva. Gritas '¡abre!' y el niño debe patear inmediatamente al pao en donde aparezca.",
+      constraints: [
+        { regla: "Solo 1 segundo para reaccionar después de abrir los ojos", como: "Trabaja velocidad de procesamiento perceptual-motor." },
+        { regla: "Coach mueve a posición 'imposible' (muy alta, muy lateral)", como: "Fuerza adaptación postural extrema." },
+        { regla: "Niño debe ajustar postura antes de patear, no solo lanzar la pierna", como: "Trabaja preparación previa para no comprometer el equilibrio." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "2-1-finish combo",
+      setup: "Tú con palcha, niño en guardia a distancia de combate.",
+      howto: "El niño ejecuta una combinación: 2 patadas reales + 1 finta + 1 patada final. Tú gritas qué número será la 'real' justo antes (la 3ª o la 4ª patada). El niño debe acertar.",
+      constraints: [
+        { regla: "Tú gritas cuál es la patada real (3ª o 4ª) justo antes del combo", como: "Trabaja decisión bajo presión auditiva." },
+        { regla: "Cada patada debe ser técnica distinta (no repetir)", como: "Trabaja repertorio bajo flujo continuo." },
+        { regla: "La última patada con máxima velocidad y compromiso", como: "Refuerza el remate como momento de máxima intensidad." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Patadas con escalera",
+      setup: "Escalera en el piso + dummy al final a 1m.",
+      howto: "El niño pasa la escalera con un patrón específico de footwork y ejecuta una patada específica al dummy al salir. Cada vuelta cambias la combinación.",
+      constraints: [
+        { regla: "Cada vuelta cambia la técnica final al dummy", como: "Cubre todo el repertorio bajo fatiga." },
+        { regla: "Combinación de 2 patadas al final, no solo 1", como: "Eleva la demanda técnica al cierre." },
+        { regla: "Cronometrado por vuelta, mejorar cada vez", como: "Métrica clara y motivante." }
+      ],
+      material: ["1 escalera", "1 dummy"]
+    },
+    {
+      nombre: "Patada al popote vertical",
+      setup: "Un compañero (o tú) sostiene un popote verticalmente, brazo extendido hacia arriba.",
+      howto: "El niño debe patear el popote en su tercio superior con el empeine, sin tirarlo al suelo. La altura del popote permite trabajar patadas altas con precisión, sin riesgo. Repite 10 patadas por pierna.",
+      constraints: [
+        { regla: "El sostén mueve el popote ligeramente entre patadas (variabilidad)", como: "Refuerza el ajuste continuo de cadera y altura." },
+        { regla: "Si tira el popote al suelo, repite la patada", como: "Refuerzo inmediato del descontrol." },
+        { regla: "Alternar pierna y altura del popote en cada turno", como: "Trabaja simétricamente y a distintas alturas." }
+      ],
+      material: ["1 popote"]
+    },
+    {
+      nombre: "Espejo de patadas",
+      setup: "Pareja en guardia, frente a frente, separados 2m.",
+      howto: "Uno (el líder) ejecuta una patada al aire a una altura específica. El otro (el espejo) debe replicar la misma patada con la misma altura inmediatamente. Cambian roles cada 1 min.",
+      constraints: [
+        { regla: "El espejo debe replicar en menos de 1 segundo", como: "Trabaja reacción técnica precisa." },
+        { regla: "El líder hace combinaciones de 2 patadas, el espejo debe copiarlas en orden", como: "Trabaja memoria motora corta." },
+        { regla: "Si el espejo falla la altura, intercambian roles inmediatamente", como: "Penalización inmediata que mantiene atención." }
+      ],
+      material: ["ninguno"]
+    }
+  ],
+  combate: [
+    {
+      nombre: "Sparring de hombros",
+      setup: "Cuadrado de 2x2m con 4 conos. Pareja dentro en guardia.",
+      howto: "Sin patadas, sin contacto al cuerpo. Solo tocar el hombro del compañero con la mano. Juegan a 3 toques.",
+      constraints: [
+        { regla: "Dentro del cuadrado pequeño (2x2m)", como: "Limita la huida, fuerza intercambio." },
+        { regla: "Solo con la mano no dominante", como: "Saca al niño de su patrón cómodo." },
+        { regla: "Suma a 3 toques para ganar el round", como: "Marca claro inicio y fin." }
+      ],
+      material: ["4 conos"]
+    },
+    {
+      nombre: "1 ataque, 1 defensa",
+      setup: "Pareja con palcha y manopla en pecho. Roles asignados.",
+      howto: "A ataca con UNA técnica (la que elija); B solo defiende (esquiva o bloquea). Rotan cada 30 seg.",
+      constraints: [
+        { regla: "B contraataca con UNA técnica específica que tú elijas", como: "Trabaja respuesta condicionada bajo presión." },
+        { regla: "A solo amaga (sin contacto)", como: "Reduce riesgo, ideal para pequeños." },
+        { regla: "B debe responder en menos de 1 segundo después del ataque", como: "Entrena contraataque inmediato." }
+      ],
+      material: ["1 palcha", "1 manopla"]
+    },
+    {
+      nombre: "Zona caliente",
+      setup: "Cuadrado pequeño con 4 aros. Pareja dentro con palcha en pecho.",
+      howto: "Combate suave dentro del cuadrado. Si uno sale, pierde un punto. Juego a 3 puntos perdidos.",
+      constraints: [
+        { regla: "Cuadrado se achica cada minuto (mueves aros adentro)", como: "Aumenta presión espacial progresiva." },
+        { regla: "Solo ataque al pao, no al cuerpo", como: "Mantiene control de contacto." },
+        { regla: "Quien sale 3 veces pierde el round", como: "Penaliza huida lineal." }
+      ],
+      material: ["4 aros"]
+    },
+    {
+      nombre: "Constraint de pierna",
+      setup: "Pareja con palcha y manopla. En guardia.",
+      howto: "Cada atleta tiene una pierna asignada para atacar; la otra solo defiende.",
+      constraints: [
+        { regla: "Uno solo pierna trasera, otro solo delantera", como: "Genera asimetría estratégica." },
+        { regla: "Ambos solo pierna izquierda (no dominante)", como: "Desarrolla la pierna débil." },
+        { regla: "Cambio aleatorio cada 15 segundos", como: "Forza adaptación rápida." }
+      ],
+      material: ["1 palcha", "1 manopla"]
+    },
+    {
+      nombre: "Popote sniper",
+      setup: "Uno sostiene popote a la altura que decida; el otro patea.",
+      howto: "El que patea debe golpear SOLO el popote sin rozar al compañero. Distancia variable que el sostén controla.",
+      constraints: [
+        { regla: "No rozar al compañero, solo el popote", como: "Refuerza control de patada precisa." },
+        { regla: "Distancia variable que cambia cada turno", como: "Calibración constante." },
+        { regla: "3 patadas seguidas sin tirar el popote", como: "Suma resistencia técnica." }
+      ],
+      material: ["1-2 popotes"]
+    },
+    {
+      nombre: "Open the door",
+      setup: "Pareja con palcha en pecho.",
+      howto: "Defensor mantiene guardia cerrada. Atacante DEBE usar una finta antes de atacar (movimiento de hombro, paso falso, amago).",
+      constraints: [
+        { regla: "Sin finta, el punto no cuenta", como: "Construye hábito de engaño previo." },
+        { regla: "Mínimo 2 fintas obligadas antes del ataque real", como: "Trabaja secuencias de engaño." },
+        { regla: "Tú arbitras qué es finta válida", como: "Estandariza el criterio." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Tag al pao",
+      setup: "Pareja con manopla en una mano cada uno (palma hacia el oponente).",
+      howto: "Cada uno debe pegar la manopla del oponente con su patada, mientras protege la propia moviéndola.",
+      constraints: [
+        { regla: "La manopla no se puede esconder atrás del cuerpo", como: "Limita evasión, fuerza intercambio real." },
+        { regla: "Solo patadas, no usar la mano libre para bloquear", como: "Aísla el uso de las piernas." },
+        { regla: "Si recibes 3 toques seguidos sin tocar al otro, pierdes", como: "Penaliza juego pasivo." }
+      ],
+      material: ["2 manoplas"]
+    },
+    {
+      nombre: "Combate con ángulos",
+      setup: "Círculo de 4m con 8 conos. Pareja en posición de combate.",
+      howto: "Prohibido atacar de frente. Toda patada debe venir desde un ángulo lateral (paso lateral previo obligado).",
+      constraints: [
+        { regla: "Antes de atacar, al menos 1 paso lateral", como: "Construye el hábito de buscar ángulos." },
+        { regla: "Doble punto si atacas desde ángulo 90°+", como: "Premia angulación extrema." },
+        { regla: "Si te sorprenden de frente, el oponente suma 2 puntos", como: "Penaliza exponerse en línea recta." }
+      ],
+      material: ["8 conos"]
+    }
+  ],
+  proteccion: [
+    {
+      nombre: "Sparring al peto",
+      setup: "Equipo completo, parejas equilibradas en peso y nivel.",
+      howto: "Combate real con contacto controlado al peto. Sin contacto a la cara. Rounds de 1 min con 30 seg de descanso.",
+      constraints: [
+        { regla: "Solo pierna trasera", como: "Limita repertorio, fuerza usar otros recursos." },
+        { regla: "Mínimo 3 técnicas distintas antes de repetir", como: "Fuerza variedad técnica." },
+        { regla: "Técnica nueva al peto = doble punto", como: "Premia creatividad sobre repetición." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Rounds 30 seg con rotación",
+      setup: "Equipo completo. Círculo de niños con 2 en el centro combatiendo.",
+      howto: "30 seg de combate. Al pitido, salen los del centro y entran 2 nuevos. Rotación continua durante 6-10 rounds.",
+      constraints: [
+        { regla: "30 seg ON / 30 seg OFF estricto", como: "Trabaja recuperación entre intercambios cortos." },
+        { regla: "Constraint distinto por cada round (lo anuncias antes)", como: "Trabaja adaptación rápida." },
+        { regla: "Último round es libre sin constraint", como: "Integra lo trabajado." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Score primero triple",
+      setup: "Equipo completo, pareja al centro.",
+      howto: "Primer punto del round vale 3, los siguientes 1. Round de 1 min.",
+      constraints: [
+        { regla: "Si recibes primero, ganar por 4+ puntos", como: "Penaliza apertura pasiva fuertemente." },
+        { regla: "Pasividad 10 seg = -1 punto", como: "Evita esperar y reaccionar." },
+        { regla: "Si nadie marca en 15 seg, ambos pierden 1 punto", como: "Fuerza inicio agresivo." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Sparring con desventaja",
+      setup: "Equipo completo. Marcador empieza desigual.",
+      howto: "Uno empieza con 2 puntos en contra. Round de 1 min. Cambian roles al siguiente round.",
+      constraints: [
+        { regla: "Round de 1 min con desventaja de 2 puntos", como: "Práctica básica de remontada." },
+        { regla: "Round de 90 seg con desventaja de 3 puntos", como: "Aumenta urgencia." },
+        { regla: "Si en 30 seg el que va perdiendo no ataca, pierde 1 punto cada 15 seg", como: "Penaliza bloqueo mental." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Sin retroceso lineal",
+      setup: "Equipo completo, área de combate marcada.",
+      howto: "Prohibido retroceder en línea recta. Toda salida debe ser lateral 45°+.",
+      constraints: [
+        { regla: "Solo salida lateral 45°+", como: "Construye hábito de circular, no escapar." },
+        { regla: "Retroceso recto = -1 punto y pausa 5 seg", como: "Refuerzo negativo claro." },
+        { regla: "Máximo 1 paso atrás permitido por intercambio", como: "Permite ajuste mínimo pero no huida." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "3 vs 1 con paos",
+      setup: "1 atleta con equipo defensivo en el centro. 2-3 compañeros con palchas/manoplas alrededor.",
+      howto: "El central debe patear el blanco que aparezca primero (alguien levanta su pao). Rotan continuamente posiciones. 45 seg ON / 30 seg OFF.",
+      constraints: [
+        { regla: "45 ON / 30 OFF", como: "Trabajo intenso con recuperación corta." },
+        { regla: "Solo patea el primer blanco que aparezca", como: "Trabaja decisión visual rápida." },
+        { regla: "Combinación de 2 técnicas obligada por blanco", como: "Eleva la demanda técnica." }
+      ],
+      material: ["equipo del defensor", "palchas y manoplas para los otros"]
+    },
+    {
+      nombre: "Combate con apertura forzada",
+      setup: "Equipo completo, pareja al centro.",
+      howto: "Antes de cada ataque, el atacante debe hacer 1 finta identificable. Si ataca sin finta, no cuenta.",
+      constraints: [
+        { regla: "1 finta antes del ataque, identificable", como: "Construye hábito de no atacar a ciegas." },
+        { regla: "2 fintas antes del ataque real", como: "Trabaja secuencias de engaño." },
+        { regla: "La finta debe ser de pierna distinta a la que ataca", como: "Trabaja descoordinación intencional." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Combate temático",
+      setup: "Equipo completo. Anuncias el tema antes del round.",
+      howto: "Todo el round se combate con un constraint temático único (solo una técnica permitida, o solo combinaciones, etc.).",
+      constraints: [
+        { regla: "Solo dolyo chagi durante todo el round", como: "Trabaja una sola técnica en profundidad." },
+        { regla: "Solo combinaciones de 2+ patadas (1 patada suelta no cuenta)", como: "Obliga a encadenar." },
+        { regla: "Solo se vale marcar después de finta previa", como: "Combinable con apertura forzada." }
+      ],
+      material: ["equipo completo"]
+    }
+  ],
+  acondicionamiento: [
+    {
+      nombre: "Tabata al dummy",
+      setup: "Dummies distribuidos para que cada niño tenga el suyo.",
+      howto: "20 seg de patadas a máxima intensidad / 10 seg descanso × 8 rondas (4 min total).",
+      constraints: [
+        { regla: "Solo pierna trasera todo el Tabata", como: "Sobrecarga unilateral extrema." },
+        { regla: "Cambio de pierna cada 2 rondas", como: "Trabajo simétrico bajo fatiga." },
+        { regla: "Combinación de 2 técnicas obligada en cada round ON", como: "Suma demanda cognitiva." }
+      ],
+      material: ["1 dummy por niño (o compartir 2:1)"]
+    },
+    {
+      nombre: "Burpee + patada",
+      setup: "Espacio libre + palcha (puede ser compañero o tú).",
+      howto: "Burpee completo → levantarse rápido → patada al pao → repetir. Sin pausas.",
+      constraints: [
+        { regla: "10 reps por turno", como: "Volumen básico explosivo." },
+        { regla: "20 reps con técnica de patada distinta cada una", como: "Suma demanda técnica bajo fatiga." },
+        { regla: "Cronometrado < 2 min para 15 reps", como: "Métrica clara y motivante." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Skipping con escalera",
+      setup: "Escalera en el piso.",
+      howto: "Pasos rápidos a través de la escalera con footwork TKD, terminados con saltos verticales explosivos al final.",
+      constraints: [
+        { regla: "Footwork distinto en cada vuelta", como: "Variabilidad de patrones." },
+        { regla: "5 vueltas seguidas sin parar", como: "Resistencia anaeróbica." },
+        { regla: "Cronometrado por serie, mejorar cada vez", como: "Motivación medible." }
+      ],
+      material: ["1 escalera"]
+    },
+    {
+      nombre: "Pao continuo 1 min",
+      setup: "Pareja con palcha. El sostén se mueve por el espacio.",
+      howto: "El que patea persigue la palcha y patea sin parar por 1 minuto.",
+      constraints: [
+        { regla: "Sin bajar el ritmo 1 minuto completo", como: "Resistencia específica de cadera." },
+        { regla: "Solo pierna trasera todo el minuto", como: "Sobrecarga unilateral severa." },
+        { regla: "Cambio de pierna cada 4 patadas", como: "Transiciones rápidas bajo fatiga." }
+      ],
+      material: ["1 palcha"]
+    },
+    {
+      nombre: "Relevos con conos",
+      setup: "6 conos en zigzag + dummy al final. 2 equipos.",
+      howto: "Relevos pasando el zigzag + 5 patadas al dummy + regreso. El siguiente sale cuando el anterior toca.",
+      constraints: [
+        { regla: "Equipos de 2 personas", como: "Trabajo intenso con recuperación corta." },
+        { regla: "Cada miembro hace 3 turnos completos", como: "Volumen alto." },
+        { regla: "Mejorar el tiempo total cada vuelta", como: "Suma motivación competitiva." }
+      ],
+      material: ["6 conos", "1 dummy"]
+    },
+    {
+      nombre: "Ronda de los 4 rincones",
+      setup: "4 esquinas marcadas: 1) dummy, 2) palcha con compañero, 3) manopla con compañero, 4) espacio libre.",
+      howto: "Rotación de 30 seg en cada esquina con tarea diferente. 3-4 rondas completas.",
+      constraints: [
+        { regla: "30 seg trabajo / 5 seg cambio (alta densidad)", como: "Transiciones rápidas tipo intercambio real." },
+        { regla: "Tipo de patada obligado distinto en cada esquina", como: "Cubre todo el repertorio en una sesión." },
+        { regla: "Última ronda todos en una sola esquina compitiendo", como: "Cierre lúdico-competitivo." }
+      ],
+      material: ["1 dummy", "1 palcha", "1 manopla", "4 conos"]
+    }
+  ]
+};
+
+const JUEGOS = {
+  footwork: [
+    {
+      nombre: "Rey de la palcha",
+      setup: "1 niño al centro con palcha. Los demás hacen fila a 3m.",
+      howto: "Cada niño tiene 30 seg para patear la palcha tantas veces como pueda. El del pao mueve la altura para complicar. El que más patadas acumule en su turno, pasa al centro a sostener.",
+      constraints: [
+        { regla: "El del pao mueve la altura cada 5 segundos", como: "Variabilidad perceptual constante." },
+        { regla: "Solo cuentan patadas con técnica distinta", como: "Premia repertorio sobre volumen." },
+        { regla: "Eliminatorias: los 3 mejores avanzan a una ronda final", como: "Sube la intensidad competitiva." }
+      ],
+      material: ["1-2 palchas"]
+    },
+    {
+      nombre: "Sin retroceso lineal",
+      setup: "Pareja con palcha en pecho. Área de combate marcada.",
+      howto: "Sparring al pao, 1 min por round. Ninguno puede retroceder más de 1 paso. Salida lateral obligada.",
+      constraints: [
+        { regla: "Sin retroceso lineal, ninguno", como: "Construye hábito esencial de torneo." },
+        { regla: "Solo salida 45° o más", como: "Refuerza angulación." },
+        { regla: "Cuadrado pequeño que fuerce ángulos", como: "Limita opciones de huida." }
+      ],
+      material: ["3 palchas", "2 manoplas"]
+    },
+    {
+      nombre: "Carrera de evasión",
+      setup: "Marca un cuadrado de 5x5m con conos. La mitad del grupo dentro con palchas (los 'cazadores'), la otra mitad fuera (los 'evasores').",
+      howto: "Los evasores entran al cuadrado uno por uno y deben cruzarlo y salir por el otro lado sin que ningún cazador les toque con el pao. Si los tocan, suman 1 punto al cazador. Gana el evasor que menos puntos acumule en su recorrido completo. Después rotan.",
+      constraints: [
+        { regla: "Los evasores no pueden detenerse más de 1 seg", como: "Fuerza desplazamiento continuo en zona de presión." },
+        { regla: "Los cazadores no se pueden mover de su posición, solo extender la palcha", como: "Aísla la habilidad de evasión, no de velocidad pura." },
+        { regla: "Cada cruce exitoso suma 1 punto al evasor; gana al sumar 5 puntos", como: "Cambia el objetivo a evasiones limpias acumuladas." }
+      ],
+      material: ["4 conos", "3 palchas"]
+    }
+  ],
+  pateo: [
+    {
+      nombre: "3 vidas",
+      setup: "Parejas con palcha en pecho cada uno (o manopla/popote).",
+      howto: "Cada uno tiene 3 vidas. Si recibe patada al blanco, pierde una vida. Solo se patea el blanco del oponente, no el cuerpo. Quien pierde sus 3 vidas, queda eliminado. Sistema de eliminatorias.",
+      constraints: [
+        { regla: "Solo pierna trasera vale, las patadas con delantera no quitan vidas", como: "Aísla técnica específica para foco." },
+        { regla: "Cambio obligatorio de pierna cada vida perdida", como: "Trabaja simetría bajo presión." },
+        { regla: "No se vale repetir técnica que ya se usó en el round", como: "Fuerza variedad." }
+      ],
+      material: ["3 palchas + 2 manoplas o popotes"]
+    },
+    {
+      nombre: "Open the door",
+      setup: "Pareja con palcha. Una posición fija de defensor con guardia cerrada.",
+      howto: "Sparring al pao. El defensor mantiene guardia cerrada (manos arriba, codos pegados). El atacante DEBE hacer al menos una finta antes de patear. Sin finta, el ataque no cuenta. 1 min por round.",
+      constraints: [
+        { regla: "Tú arbitras qué es finta válida (movimiento de hombro, paso falso, amago)", como: "Estandariza el criterio para todos." },
+        { regla: "Mínimo 2 fintas antes del ataque real", como: "Trabaja secuencias de engaño." },
+        { regla: "El defensor también debe contraatacar después de defender (no solo bloquear)", como: "Convierte la defensa en transición ofensiva." }
+      ],
+      material: ["3 palchas", "2 manoplas"]
+    },
+    {
+      nombre: "Torneo de precisión",
+      setup: "3 dummies con popotes pegados a alturas distintas (bajo, medio, alto). Niños hacen fila.",
+      howto: "Cada niño tiene 1 turno: debe ejecutar 3 patadas, una a cada dummy, golpeando exactamente el popote sin tirarlo. Por cada acierto suma 10 puntos. Si tira el popote, 0 puntos en ese dummy. Sistema de torneo, ganador del round acumulado.",
+      constraints: [
+        { regla: "3 técnicas distintas obligadas (una por dummy)", como: "Trabaja repertorio bajo presión competitiva." },
+        { regla: "Cronometrado: bonus de 5 puntos si lo hace en menos de 10 seg", como: "Suma velocidad sin sacrificar precisión." },
+        { regla: "Eliminatorias: los 2 mejores compiten en una final con popotes a alturas más difíciles", como: "Escalada progresiva de dificultad." }
+      ],
+      material: ["3 dummies", "3 popotes"]
+    }
+  ],
+  combate: [
+    {
+      nombre: "Mini-sparring rotativo",
+      setup: "Parejas con palcha en pecho. Área de combate.",
+      howto: "Rounds de 30 seg, contacto al pao no al cuerpo. Al pitido, rotan parejas. Cada niño combate con todos los demás.",
+      constraints: [
+        { regla: "Cada round con constraint distinto que anuncias", como: "Trabaja adaptación táctica." },
+        { regla: "El constraint del round surge de votación entre todos", como: "Aumenta engagement y comprensión." },
+        { regla: "Eliminatorias suman puntos para ranking final", como: "Suma componente competitivo." }
+      ],
+      material: ["3 palchas", "2 manoplas"]
+    },
+    {
+      nombre: "Sparring con scoring modificado",
+      setup: "Pareja con palcha en pecho.",
+      howto: "Sparring con scoring tradicional WT simplificado pero con bonificaciones modificadas.",
+      constraints: [
+        { regla: "Primer punto del round vale 3", como: "Fuerza apertura agresiva." },
+        { regla: "Doble punto si la técnica nunca se ha usado en el round", como: "Premia variedad activa." },
+        { regla: "Round de 1 min", como: "Tiempo de torneo real." }
+      ],
+      material: ["3 palchas", "2 manoplas"]
+    },
+    {
+      nombre: "Combate por equipos",
+      setup: "Divide el grupo en 2 equipos del mismo número. Marca un área de combate.",
+      howto: "1v1 sucesivos entre miembros de cada equipo. Cada round dura 30 seg. El equipo que gane más rounds, gana el día. Los demás miembros ven y aprenden.",
+      constraints: [
+        { regla: "Cada miembro debe combatir mínimo 2 veces durante la sesión", como: "Asegura participación equitativa." },
+        { regla: "El equipo perdedor del round elige el constraint del siguiente round", como: "Da oportunidad de remontada estratégica." },
+        { regla: "Final con los capitanes en round de 1 min, vale doble", como: "Cierre dramático y memorable." }
+      ],
+      material: ["3 palchas", "2 manoplas"]
+    }
+  ],
+  proteccion: [
+    {
+      nombre: "Combate tipo torneo WT",
+      setup: "Equipo completo, área de combate oficial marcada.",
+      howto: "Simulación de torneo: 2 rounds de 1 min con 30 seg de descanso entre ellos. Scoring WT estándar. Tú arbitras.",
+      constraints: [
+        { regla: "Constraint sorpresa anunciado antes del round 2", como: "Trabaja adaptación de estrategia en medio del combate." },
+        { regla: "Eliminatorias por bracket (sistema de torneo)", como: "Simula presión real de torneo." },
+        { regla: "Round dorado de 30 seg si hay empate", como: "Enseña a combatir bajo presión extrema de muerte súbita." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Combate por puntos rápidos",
+      setup: "Equipo completo, formato corto.",
+      howto: "Round de 45 seg. Primero a 5 puntos gana, sin importar el tiempo restante. Si empate al final, round dorado.",
+      constraints: [
+        { regla: "Round corto de 45 seg, urgencia máxima", como: "Fuerza ofensiva sostenida." },
+        { regla: "Primer a 5 puntos gana automáticamente", como: "Premia presión constante." },
+        { regla: "Round dorado de 30 seg si empate", como: "Trabaja gestión de muerte súbita." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Combate temático",
+      setup: "Equipo completo. Tema asignado al inicio.",
+      howto: "Todo el round se combate bajo un constraint temático específico.",
+      constraints: [
+        { regla: "Solo dolyo chagi (round house) durante todo el round", como: "Profundiza una técnica en condiciones reales." },
+        { regla: "Solo combinaciones de 2+ patadas, las sueltas no cuentan", como: "Obliga a encadenar." },
+        { regla: "Sin retroceso lineal permitido", como: "Combinable con otros constraints." }
+      ],
+      material: ["equipo completo"]
+    },
+    {
+      nombre: "Liga del mes",
+      setup: "Equipo completo, formato de competencia recurrente.",
+      howto: "Sistema de combates donde cada niño suma puntos por victoria a lo largo de varias sesiones. Lleva tabla de posiciones. Ideal para terminar el mes con un campeón.",
+      constraints: [
+        { regla: "Cada combate dura 1 min, scoring tradicional", como: "Acumula victorias para ranking." },
+        { regla: "Cada victoria vale 3 puntos, empate 1, derrota 0", como: "Premia ganar, penaliza pasividad." },
+        { regla: "Última sesión del mes: final de los 2 punteros de la tabla", como: "Cierre con incentivo claro." }
+      ],
+      material: ["equipo completo"]
+    }
+  ],
+  acondicionamiento: [
+    {
+      nombre: "Circuito final integrador",
+      setup: "4 estaciones: 1) dummy para patadas, 2) escalera, 3) sparring de hombros (parejas), 4) plank o saltos.",
+      howto: "3 vueltas completas. 45 seg por estación, sin descanso entre estaciones (solo 5 seg para transición).",
+      constraints: [
+        { regla: "3 vueltas completas, sin descanso entre vueltas", como: "Trabaja resistencia mental tanto como física." },
+        { regla: "45 seg por estación constante", como: "Densidad alta sostenida." },
+        { regla: "La última vuelta el tiempo de cada estación es 60 seg", como: "Cierre con sobrecarga." }
+      ],
+      material: ["1 dummy", "1 escalera"]
+    },
+    {
+      nombre: "Sparring fitness",
+      setup: "Niños en parejas con palcha en pecho. Sin equipo de protección si la intensidad es controlada.",
+      howto: "Sparring continuo con cambio de pareja cada 30 seg, sin descanso. 6 cambios mínimo, sin parar.",
+      constraints: [
+        { regla: "6 cambios consecutivos sin parar (3 min total)", como: "Resistencia bajo combate sostenido." },
+        { regla: "Constraint distinto con cada cambio de pareja", como: "Suma adaptación táctica al esfuerzo físico." },
+        { regla: "Contacto controlado, sin equipo (foco en fitness no en daño)", como: "Mantiene seguridad." }
+      ],
+      material: ["3 palchas", "2 manoplas"]
+    },
+    {
+      nombre: "Mil patadas en pareja",
+      setup: "Parejas con palcha. Cuenta colectiva entre todo el grupo.",
+      howto: "El objetivo grupal es llegar a 1000 patadas entre todos en X minutos. Cada pareja cuenta sus patadas en voz alta y va sumando al total grupal. Trabajo continuo, sin pausas.",
+      constraints: [
+        { regla: "Cada patada solo cuenta si es técnica limpia (tú arbitras)", como: "Suma calidad además de cantidad." },
+        { regla: "Cambio de pareja cada 100 patadas grupales", como: "Variabilidad en compañero de práctica." },
+        { regla: "Bonus: si llegan a 1000 en menos del tiempo asignado, gana premio grupal (clase libre, juego, etc.)", como: "Refuerza colaboración grupal." }
+      ],
+      material: ["3 palchas", "2 manoplas"]
+    }
+  ]
+};
+
+const NOTAS_CIERRE = {
+  pequenos: [
+    "Respiración guiada 1 min + estiramiento de cadera y tobillo",
+    "Juego corto de respiración: inflar globo imaginario y exhalar lento",
+    "Movilidad de cadera (círculos), tobillo y rodilla en círculo grupal"
+  ],
+  grandes: [
+    "Movilidad cadera + tobillo + estiramiento estático 3 min",
+    "Foam roller o stretching de psoas, isquios y aductores",
+    "Respiración nasal 2 min + reflexión grupal sobre el día"
+  ]
+};
+
+const NOTAS_INTENSIDAD = {
+  baja: "Constraints simples, ratios largos de descanso (1:2), foco en aprendizaje sin presión competitiva. Tiempos de juego representativo 30 seg.",
+  media: "Constraints moderados, ratios 1:1 de trabajo-descanso, scoring suave. Tiempos de juego representativo 45 seg-1 min.",
+  alta: "Constraints exigentes, ratios cortos de descanso (2:1), scoring agresivo y competencia real. Tiempos de juego 1 min+ con rotaciones rápidas."
+};
+
+// ============================================
+// LÓGICA DE GENERACIÓN
+// ============================================
+
+function pick(arr, n=1){
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return n === 1 ? shuffled[0] : shuffled.slice(0, n);
+}
+
+function pickConstraint(drill){
+  return pick(drill.constraints);
+}
+
+function renderDrill(drill, constraint){
+  return `
+    <div class="drill-name">${drill.nombre}</div>
+    <div class="drill-section">
+      <div class="drill-section-label">Cómo armar</div>
+      <div class="drill-setup">${drill.setup}</div>
+    </div>
+    <div class="drill-section">
+      <div class="drill-section-label">Cómo ejecutar</div>
+      <div class="drill-howto">${drill.howto}</div>
+    </div>
+    <div class="drill-constraint">
+      <span class="label">CONSTRAINT DEL DÍA</span>
+      ${constraint.regla}
+      <span class="how">↳ <strong>¿Por qué?</strong> ${constraint.como}</span>
+    </div>
+    <div class="drill-material">${drill.material.join(' · ')}</div>
+  `;
+}
+
+function generar(){
+  const grupo = document.getElementById('grupo').value;
+  const dia = document.getElementById('dia').value;
+  const foco = document.getElementById('foco').value;
+  const intensidad = document.getElementById('intensidad').value;
+  
+  const grupoLabel = grupo === 'pequenos' ? 'PEQUEÑOS · 3-10 años' : 'GRANDES · 11-18 años';
+  const focoLabel = {
+    footwork: 'Footwork y desplazamiento',
+    pateo: 'Técnica de pateo',
+    combate: 'Combate-decisión',
+    proteccion: 'Combate con protección',
+    acondicionamiento: 'Acondicionamiento'
+  }[foco];
+  
+  // Seleccionar elementos
+  const activacion = pick(ACTIVACIONES[foco]);
+  const estaciones = pick(ESTACIONES[foco], 3);
+  const juego = pick(JUEGOS[foco]);
+  const cierre = pick(NOTAS_CIERRE[grupo]);
+  
+  // Constraints específicos para esta sesión
+  const actConstraint = pickConstraint(activacion);
+  const estConstraints = estaciones.map(e => pickConstraint(e));
+  const juegoConstraint = pickConstraint(juego);
+  
+  // Material consolidado
+  const materialUsado = new Set();
+  activacion.material.forEach(m => materialUsado.add(m));
+  estaciones.forEach(e => e.material.forEach(m => materialUsado.add(m)));
+  juego.material.forEach(m => materialUsado.add(m));
+  
+  // Render
+  document.getElementById('out-titulo').textContent = `${dia.toUpperCase()} · ${focoLabel.toUpperCase()}`;
+  
+  document.getElementById('out-meta').innerHTML = `
+    <span class="chip accent">${grupoLabel}</span>
+    <span class="chip yellow">Intensidad ${intensidad}</span>
+    <span class="chip green">60 min</span>
+  `;
+  
+  let body = '';
+  
+  // SECCIÓN 1: ACTIVACIÓN
+  body += `
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">01</span>
+        <span class="section-title">Activación lúdica</span>
+        <span class="section-time">10 min</span>
+      </div>
+      <div class="drill">
+        ${renderDrill(activacion, actConstraint)}
+      </div>
+    </div>
+  `;
+  
+  // SECCIÓN 2: ESTACIONES
+  body += `
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">02</span>
+        <span class="section-title">Estaciones rotativas</span>
+        <span class="section-time">30 min · 10 min c/u</span>
+      </div>
+      <div class="stations">
+        ${estaciones.map((est, i) => `
+          <div class="station">
+            <div class="station-label">ESTACIÓN ${String.fromCharCode(65+i)}</div>
+            ${renderDrill(est, estConstraints[i])}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  // SECCIÓN 3: JUEGO REPRESENTATIVO
+  body += `
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">03</span>
+        <span class="section-title">Juego representativo</span>
+        <span class="section-time">15 min</span>
+      </div>
+      <div class="drill">
+        ${renderDrill(juego, juegoConstraint)}
+      </div>
+    </div>
+  `;
+  
+  // SECCIÓN 4: CIERRE
+  body += `
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">04</span>
+        <span class="section-title">Cierre</span>
+        <span class="section-time">5 min</span>
+      </div>
+      <div class="drill">
+        <div class="drill-howto">${cierre}</div>
+      </div>
+    </div>
+  `;
+  
+  // SECCIÓN MATERIAL
+  body += `
+    <div class="section">
+      <div class="material-box">
+        <h4>🎯 MATERIAL NECESARIO HOY</h4>
+        <div class="material-list">
+          ${[...materialUsado].map(m => `<span class="mat-item">${m}</span>`).join('')}
+        </div>
+      </div>
+      <div class="notes">
+        <h4>📋 NOTA DE INTENSIDAD (${intensidad.toUpperCase()})</h4>
+        <p>${NOTAS_INTENSIDAD[intensidad]}</p>
+      </div>
+      <div class="notes" style="background:rgba(0,212,170,.04);border-color:rgba(0,212,170,.2);margin-top:14px;">
+        <h4 style="color:var(--accent-3)">🥋 PRINCIPIO CLA DEL DÍA</h4>
+        <p>Si un drill genera frustración o todos fallan, el constraint es muy difícil — ajústalo. Si todos lo hacen perfecto sin esfuerzo, súbelo. El error es información, no fracaso.</p>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('out-body').innerHTML = body;
+  document.getElementById('output').classList.add('show');
+  document.getElementById('output').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function guardarClase(){
+  const titulo = document.getElementById('out-titulo').textContent;
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `clase_tkd_${titulo.replace(/\s+/g,'_').toLowerCase()}.html`;
+  a.click();
+}
+
+// Generar uno al cargar como demo
+window.addEventListener('load', generar);
+</script>
+</body>
+</html>
